@@ -5,10 +5,14 @@ use oop::Post;
 
     post.add_text("i am eating");
 
-    let ReviewedPost = post.review_post();
 
-    let this_post =  ReviewedPost.approve();
+    let ReviewedPost = post.reject_post();
 
-    println!("{}",this_post.content());
+    let this_post =  ReviewedPost.review_post();
+
+    let reviewd_reviewed = this_post.approved_for_final();
+  
+    let final_reviewed = reviewd_reviewed.approve();
+    assert_eq!("i am eating", final_reviewed.content())
     
 }
