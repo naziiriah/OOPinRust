@@ -1,143 +1,44 @@
-pub struct  Post {
-    state: Option<Box<dyn State>>,
+pub struct Post {
     content: String,
 }
 
+
 impl Post {
-    pub fn new() ->  Post {
-        Post{
-            state: Some(Box::new(Draft{})),
+    pub fn new() -> DraftPost{
+        DraftPost {
             content: String::new(),
         }
     }
 
-    pub fn add_text(&mut self, text:&str) {
-        self.content.push_str(text);
+    pub fn content(&self) -> &str{  
+        &self.content
     }
-    pub fn content(&self) -> &str{
-        self.state.as_ref().unwrap().content(self)
+}
+
+pub struct DraftPost {
+     content: String,
+}
+
+impl DraftPost {
+    pub fn add_text(&mut self, txt:&str) {
+        self.content.push_str(txt);
     }
 
-    pub fn request_review(&mut self){
-        if let Some(state) = self.state.take()  {
-            self.state = Some(state.request_review())            
+    pub fn review_post(self) -> PendingReviewPost {
+        PendingReviewPost {
+            content: self.content,
         }
     }
+}
 
-    pub fn final_review(&mut self){
-        if let Some(state) = self.state.take()  {
-            self.state = Some(state.final_review())            
+pub struct PendingReviewPost {
+     content: String,
+}
+
+impl PendingReviewPost {
+    pub fn approve(self) -> Post{
+        Post {
+            content: self.content,
         }
-    }
-
-    pub fn approve(&mut self){
-        if let Some(state) = self.state.take()  {
-            self.state = Some(state.approve())            
-        }
-    }  
-
-    pub fn reject(&mut self){
-        if let Some(state) = self.state.take() {
-            self.state = Some(state.reject())            
-        }
-    }
-
-}
-
-trait State {
-    fn request_review(self:Box<Self>) -> Box<dyn State>;
-    fn final_review(self:Box<Self>) -> Box<dyn State>;
-    fn approve(self:Box<Self>) -> Box<dyn State>;
-    fn content<'a>(&self, post:&'a Post)-> &'a str{
-        ""
-    }
-    fn reject(self:Box<Self>) -> Box<dyn State>;
-}
-
-
-struct  Draft {}
-
-struct PendingReview {}
-
-struct FinalReview {}
-struct Published{}
-
-
-// two apprvls required before a post is published
-// add text to a post when it is in draft
-
-impl State for Draft {
-    fn request_review(self:Box<Self>) -> Box<dyn State>{
-        Box::new(PendingReview{})
-    }
-
-    fn final_review(self:Box<Self>) -> Box<dyn State> {
-        self
-    }
-
-    fn approve(self:Box<Self>) -> Box<dyn State>{
-        self
-    }
-
-    fn reject(self:Box<Self>) -> Box<dyn State> {
-        self
-    }
-
-}
-
-impl State for PendingReview {
-    fn request_review(self:Box<Self>) -> Box<dyn State>{
-        self
-    }
-
-    fn final_review(self:Box<Self>) -> Box<dyn State> {
-        Box::new(FinalReview {})
-    }
-
-    fn approve(self:Box<Self>) -> Box<dyn State>{
-        self
-    }
-
-    fn reject(self:Box<Self>) -> Box<dyn State> {
-        Box::new(Draft {})
-    }
-}
-
-impl State for FinalReview {
-    fn request_review(self:Box<Self>) -> Box<dyn State>{
-        self
-    }
-
-    fn final_review(self:Box<Self>) -> Box<dyn State> {
-        self
-    }
-
-    fn approve(self:Box<Self>) -> Box<dyn State>{
-        Box::new(Published {})
-    }
-
-    fn reject(self:Box<Self>) -> Box<dyn State> {
-        Box::new(Draft {})
-    }   
-}
-
-impl State for Published{
-    fn request_review(self:Box<Self>) -> Box<dyn State>{
-        self
-    }
-
-    fn final_review(self:Box<Self>) -> Box<dyn State> {
-        self
-    }
-    fn approve(self:Box<Self>) -> Box<dyn State>{
-        self
-    }
-
-    fn content<'a>(&self, post:&'a Post)-> &'a str{
-        &post.content
-    }
-
-    fn reject(self:Box<Self>) -> Box<dyn State> {
-        self
     }
 }

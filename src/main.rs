@@ -1,21 +1,14 @@
- use oop::Post;
+use oop::Post;
 
-fn main() {
-    let mut post = Post::new();
+ fn main() {
+      let mut post  = Post::new();
 
-    post.add_text("I ate a salad");
-    post.add_text(" I ate a salad");
-    assert_eq!("", post.content());
+    post.add_text("i am eating");
 
-    post.request_review();
-    assert_eq!("", post.content());
+    let ReviewedPost = post.review_post();
 
-    post.reject();
-    assert_eq!("", post.content());
+    let this_post =  ReviewedPost.approve();
 
-    post.request_review();
-    post.final_review();
-    post.approve();
-    assert_eq!("I ate a salad I ate a salad", post.content());
+    println!("{}",this_post.content());
     
 }
